@@ -1,4 +1,4 @@
-package com.wcy.netty;
+package com.wcy.netty.protocol;
 
 import lombok.Data;
 

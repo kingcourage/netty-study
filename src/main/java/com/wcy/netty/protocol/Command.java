@@ -1,4 +1,5 @@
 package com.wcy.netty.protocol;
 
-public class Command {
+public interface Command {
+    Byte lOGIN_REQUEST = 1;
 }
