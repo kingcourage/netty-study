@@ -1,32 +1,37 @@
 package com.wcy.netty.protocol;
 
+import com.wcy.netty.protocol.request.LoginRequestPacket;
+import com.wcy.netty.protocol.request.MessageRequestPacket;
+import com.wcy.netty.protocol.response.LoginResponsePacket;
+import com.wcy.netty.protocol.response.MessageResponsePacket;
 import com.wcy.netty.serialize.JSONSerializer;
 import com.wcy.netty.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.wcy.netty.protocol.Command.lOGIN_REQUEST;
+import static com.wcy.netty.protocol.command.Command.*;
 
 public class PacketCodeC {
-    private static final int MAGIC_NUMBER = 0x12345678;
+    public static final int MAGIC_NUMBER = 0x12345678;
+    public static final PacketCodeC INSTANCE = new PacketCodeC();
     private static final Map<Byte,Class<? extends Packet>> packetTypeMap;
     private static final Map<Byte,Serializer> serializerMap;
 
     static {
         packetTypeMap = new HashMap<>();
-        packetTypeMap.put(lOGIN_REQUEST,LoginRequestPacket.class);
+        packetTypeMap.put(lOGIN_REQUEST, LoginRequestPacket.class);
+        packetTypeMap.put(LOGIN_RESPONSE, LoginResponsePacket.class);
+        packetTypeMap.put(MESSAGE_REQUEST, MessageRequestPacket.class);
+        packetTypeMap.put(MESSAGE_RESPONSE, MessageResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();
         serializerMap.put(serializer.getSerializerAlgorithm(),serializer);
     }
 
-    public ByteBuf encode(Packet packet){
-        //创建ByteBuf对象
-        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
+    public ByteBuf encode(ByteBuf byteBuf,Packet packet){
 
         //序列化java对象
         byte[] bytes = Serializer.DEFAULT.serialize(packet);

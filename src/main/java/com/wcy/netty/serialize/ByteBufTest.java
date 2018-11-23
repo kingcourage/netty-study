@@ -1,4 +1,4 @@
-package com.wcy.netty;
+package com.wcy.netty.serialize;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

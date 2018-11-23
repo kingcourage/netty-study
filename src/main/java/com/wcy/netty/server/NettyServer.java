@@ -1,5 +1,11 @@
-package com.wcy.netty;
+package com.wcy.netty.server;
 
+import com.wcy.netty.codec.PacketDecoder;
+import com.wcy.netty.codec.PacketEncoder;
+import com.wcy.netty.codec.Spliter;
+import com.wcy.netty.server.handler.AuthHandler;
+import com.wcy.netty.server.handler.LoginRequestHandler;
+import com.wcy.netty.server.handler.MessageRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -21,7 +27,13 @@ public class NettyServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new FirstServerHandler());
+                        ch.pipeline().addLast(new Spliter());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginRequestHandler());
+
+                        ch.pipeline().addLast(new AuthHandler());
+                        ch.pipeline().addLast(new MessageRequestHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 })
                 //维护map可以自定义添加属性
@@ -29,7 +41,7 @@ public class NettyServer {
                 //设置TCP底层相关属性
         .childOption(ChannelOption.SO_KEEPALIVE,true)
         .childOption(ChannelOption.TCP_NODELAY,true);
-        bind(serverBootstrap,1000);
+        bind(serverBootstrap,8000);
     }
 
 
