@@ -1,4 +1,4 @@
-package com.wcy.netty.server.handler;
+package com.wcy.netty.client.handler;
 
 import com.wcy.netty.protocol.request.HeartBeatRequestPacket;
 import io.netty.channel.ChannelHandlerContext;

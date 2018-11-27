@@ -1,4 +1,4 @@
-package com.wcy.netty.console;
+package com.wcy.netty.client.console;
 
 import com.wcy.netty.protocol.request.CreateGroupRequestPacket;
 import io.netty.channel.Channel;

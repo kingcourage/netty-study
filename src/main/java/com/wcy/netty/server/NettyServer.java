@@ -1,11 +1,11 @@
 package com.wcy.netty.server;
 
+import com.wcy.netty.codec.PacketCodecHandler;
 import com.wcy.netty.codec.PacketDecoder;
 import com.wcy.netty.codec.PacketEncoder;
 import com.wcy.netty.codec.Spliter;
-import com.wcy.netty.server.handler.AuthHandler;
-import com.wcy.netty.server.handler.LoginRequestHandler;
-import com.wcy.netty.server.handler.MessageRequestHandler;
+import com.wcy.netty.handler.IMIdleStateHandler;
+import com.wcy.netty.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -27,13 +27,13 @@ public class NettyServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new IMIdleStateHandler());
                         ch.pipeline().addLast(new Spliter());
-                        ch.pipeline().addLast(new PacketDecoder());
-                        ch.pipeline().addLast(new LoginRequestHandler());
-
-                        ch.pipeline().addLast(new AuthHandler());
-                        ch.pipeline().addLast(new MessageRequestHandler());
-                        ch.pipeline().addLast(new PacketEncoder());
+                        ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
+                        ch.pipeline().addLast(AuthHandler.INSTANCE);
+                        ch.pipeline().addLast(IMHandler.INSTANCE);
                     }
                 })
                 //维护map可以自定义添加属性

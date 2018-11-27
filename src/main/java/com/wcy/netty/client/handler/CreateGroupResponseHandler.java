@@ -1,5 +1,6 @@
-package com.wcy.netty.protocol.response;
+package com.wcy.netty.client.handler;
 
+import com.wcy.netty.protocol.response.CreateGroupResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 

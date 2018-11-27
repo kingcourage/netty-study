@@ -1,4 +1,17 @@
 package com.wcy.netty.protocol.request;
 
-public class JoinGroupRequestPacket {
+import com.wcy.netty.protocol.Packet;
+import lombok.Data;
+
+import static com.wcy.netty.protocol.command.Command.JOIN_GROUP_REQUEST;
+
+@Data
+public class JoinGroupRequestPacket extends Packet {
+
+    private String groupId;
+
+    @Override
+    public Byte getCommand() {
+        return JOIN_GROUP_REQUEST;
+    }
 }

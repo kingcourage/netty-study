@@ -1,4 +1,4 @@
-package com.wcy.netty.console;
+package com.wcy.netty.client.console;
 
 import com.wcy.netty.util.SessionUtil;
 import io.netty.channel.Channel;
@@ -13,9 +13,12 @@ public class ConsoleCommandManager implements ConsoleCommand{
 
     public ConsoleCommandManager(){
         consoleCommandMap = new HashMap<>();
-        consoleCommandMap.put("sendToUser",new SendToUserConsoleCommand());
-        consoleCommandMap.put("logout",new LogoutConsoleCommand());
-        consoleCommandMap.put("createGroup",new CreateGroupConsoleCommand());
+        consoleCommandMap.put("sendToUser", new SendToUserConsoleCommand());
+        consoleCommandMap.put("logout", new LogoutConsoleCommand());
+        consoleCommandMap.put("createGroup", new CreateGroupConsoleCommand());
+        consoleCommandMap.put("joinGroup", new JoinGroupConsoleCommand());
+        consoleCommandMap.put("quitGroup", new QuitGroupConsoleCommand());
+        consoleCommandMap.put("listGroupMembers", new ListGroupMembersConsoleCommand());
     }
 
     @Override

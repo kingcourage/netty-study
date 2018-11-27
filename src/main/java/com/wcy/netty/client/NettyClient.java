@@ -1,12 +1,13 @@
 package com.wcy.netty.client;
 
-import com.wcy.netty.client.handler.LoginResponseHandler;
-import com.wcy.netty.client.handler.MessageResponseHandler;
+import com.wcy.netty.client.console.ConsoleCommandManager;
+import com.wcy.netty.client.console.LoginConsoleCommand;
+import com.wcy.netty.client.handler.*;
 import com.wcy.netty.codec.PacketDecoder;
 import com.wcy.netty.codec.PacketEncoder;
 import com.wcy.netty.codec.Spliter;
-import com.wcy.netty.protocol.request.LoginRequestPacket;
-import com.wcy.netty.protocol.request.MessageRequestPacket;
+import com.wcy.netty.handler.IMIdleStateHandler;
+import com.wcy.netty.client.handler.HeartBeatTimerHandler;
 import com.wcy.netty.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -41,11 +42,28 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
                         ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(new PacketDecoder());
+                        // 登录响应处理器
                         ch.pipeline().addLast(new LoginResponseHandler());
+                        // 收消息处理器
                         ch.pipeline().addLast(new MessageResponseHandler());
+                        // 创建群响应处理器
+                        ch.pipeline().addLast(new CreateGroupResponseHandler());
+                        // 加群响应处理器
+                        ch.pipeline().addLast(new JoinGroupResponseHandler());
+                        // 退群响应处理器
+                        ch.pipeline().addLast(new QuitGroupResponseHandler());
+                        // 获取群成员响应处理器
+                        ch.pipeline().addLast(new ListGroupMembersResponseHandler());
+                        // 登出响应处理器
+                        ch.pipeline().addLast(new LogoutResponseHandler());
                         ch.pipeline().addLast(new PacketEncoder());
+
+                        // 心跳定时器
+                        ch.pipeline().addLast(new HeartBeatTimerHandler());
                     }
                 });
        connect(bootstrap,HOST,PORT,MAX_RETRY);
@@ -75,34 +93,18 @@ public class NettyClient {
     }
 
     private static void startConsoleThread(Channel channel){
-        Scanner sc = new Scanner(System.in);
-        LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+        ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
+        LoginConsoleCommand loginConsoleCommand = new LoginConsoleCommand();
+        Scanner scanner = new Scanner(System.in);
         new Thread(()->{
             while (!Thread.interrupted()) {
-                if (!SessionUtil.hasLogin(channel)) {
-                    System.out.print("输入用户名登录: ");
-                    String username = sc.nextLine();
-                    loginRequestPacket.setUserName(username);
-
-                    // 密码使用默认的
-                    loginRequestPacket.setPassword("pwd");
-
-                    // 发送登录数据包
-                    channel.writeAndFlush(loginRequestPacket);
-                    waitForLoginResponse();
-                } else {
-                    String toUserId = sc.next();
-                    String message = sc.next();
-                    channel.writeAndFlush(new MessageRequestPacket(toUserId, message));
+                if(!SessionUtil.hasLogin(channel)){
+                    loginConsoleCommand.exec(scanner,channel);
+                }else{
+                    consoleCommandManager.exec(scanner,channel);
                 }
             }
         }).start();
     }
 
-    private static void waitForLoginResponse() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
-    }
 }
